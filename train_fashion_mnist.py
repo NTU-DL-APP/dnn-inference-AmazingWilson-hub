@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow.keras.datasets import fashion_mnist
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Flatten, Dense
+from tensorflow.keras.optimizers import Adam
 
 # === 載入 Fashion-MNIST 資料集 ===
 (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
@@ -9,19 +10,40 @@ x_train = x_train.astype("float32") / 255.0
 x_test = x_test.astype("float32") / 255.0
 
 # === 建立模型 ===
+# model = Sequential([
+#     Flatten(input_shape=(28, 28)),        # 將 28x28 展平為 784
+#     Dense(128, activation="relu"),        # 隱藏層
+#     Dense(10, activation="softmax")       # 輸出層，10 類別
+# ])
+
+
 model = Sequential([
-    Flatten(input_shape=(28, 28)),        # 將 28x28 展平為 784
-    Dense(128, activation="relu"),        # 隱藏層
-    Dense(10, activation="softmax")       # 輸出層，10 類別
+    Flatten(input_shape=(28, 28)),
+    Dense(1024, activation='relu'),
+    Dense(512, activation='relu'),
+    Dense(256, activation='relu'),
+    Dense(128, activation='relu'),
+    Dense(10, activation='softmax')
 ])
 
+
 # === 編譯模型 ===
-model.compile(optimizer="adam",
-              loss="sparse_categorical_crossentropy",
-              metrics=["accuracy"])
+# model.compile(optimizer="adam",
+#               loss="sparse_categorical_crossentropy",
+#               metrics=["accuracy"])
+
+model.compile(optimizer=Adam(learning_rate=0.0005),
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
 
 # === 訓練模型 ===
-model.fit(x_train, y_train, epochs=5, batch_size=64, validation_split=0.1)
+# model.fit(x_train, y_train, epochs=5, batch_size=64, validation_split=0.1)
+model.fit(x_train, y_train,
+          epochs=50,                 
+          batch_size=64,            
+          validation_split=0.1,     
+          verbose=2)
+
 
 # === 儲存為 .h5 模型檔 ===
 model.save("fashion_mnist.h5")
