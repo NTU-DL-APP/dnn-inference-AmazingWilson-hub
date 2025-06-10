@@ -3,12 +3,12 @@ import json
 
 # === Activation functions ===
 def relu(x):
-    # TODO: Implement the Rectified Linear Unit
-    return x
+    return np.maximum(0, x)
 
 def softmax(x):
-    # TODO: Implement the SoftMax function
-    return x
+    # x shape: (batch_size, num_classes)
+    exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))  # prevent overflow
+    return exp_x / np.sum(exp_x, axis=1, keepdims=True)
 
 # === Flatten ===
 def flatten(x):
@@ -46,3 +46,27 @@ def nn_forward_h5(model_arch, weights, data):
 def nn_inference(model_arch, weights, data):
     return nn_forward_h5(model_arch, weights, data)
     
+
+
+if __name__ == "__main__":
+    from utils.mnist_reader import load_mnist
+
+    # 讀取模型架構
+    with open("model/fashion_mnist.json", "r") as f:
+        model_arch = json.load(f)
+
+    # 讀取模型權重
+    weights_npz = np.load("model/fashion_mnist.npz")
+    weights = {k: weights_npz[k] for k in weights_npz.files}
+
+    # 讀取測試資料
+    X_test, y_test = load_mnist("data", kind="t10k")
+    X_test = X_test.astype("float32") / 255.0
+
+    # 跑前向推論
+    preds = nn_inference(model_arch, weights, X_test)
+    pred_labels = np.argmax(preds, axis=1)
+
+    # 計算準確率
+    acc = np.mean(pred_labels == y_test)
+    print(f"✅ NumPy 推論 Accuracy: {acc:.4f}")
