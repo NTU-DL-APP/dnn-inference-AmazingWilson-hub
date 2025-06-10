@@ -5,10 +5,12 @@ import json
 def relu(x):
     return np.maximum(0, x)
 
-def softmax(x):
-    # x shape: (batch_size, num_classes)
-    exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))  # prevent overflow
-    return exp_x / np.sum(exp_x, axis=1, keepdims=True)
+def softmax(x, axis=-1):
+    x = np.array(x)
+    x_max = np.max(x, axis=axis, keepdims=True)
+    e_x = np.exp(x - x_max)
+    return e_x / np.sum(e_x, axis=axis, keepdims=True)
+
 
 # === Flatten ===
 def flatten(x):
